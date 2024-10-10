@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="ICE Test (STUN/TURN)">
+    <link rel="apple-touch-icon" sizes="57x57" href="ico/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="ico/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="ico/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="ico/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="ico/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="ico/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="ico/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="ico/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="ico/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="ico/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="ico/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="ico/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="ico/favicon-16x16.png">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="manifest" href="./ico/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="ico/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+    <title>ICE Test (STUN/TURN)</title>
+    <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/style.min.css" rel="stylesheet">
+    <link href="assets/css/all.min.css" rel="stylesheet">
+    <script type="text/javascript" src="assets/js/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+<main class="flex-shrink-0">
+    <div style="display: block; padding: 30px 20px 20px 20px;">
+        <div class="row">
+            <div class="col-8">
+                <h4>ICE Server</h4>
+            </div>
+            <div class="col-4" style="text-align: right;">
+                <button id="example" type="submit" class="d-none btn btn-secondary" onclick="return loadExample();">RUN EXAMPLE</button>
+                <button id="resetButton" type="submit" class="d-none btn btn-secondary" onclick="return loadHome();">
+                    <i title="Reset" class="fa-solid fa-house-chimney"></i>
+                </button>
+            </div>
+        </div>
+        <hr>
+        <div id="formDiv" class="row m-0 pt-2 pb-0 mb-3">
+            <div class="col-12 col-lg-8 pt-1 border">
+                <form onsubmit="return ice();">
+                    <div class="row mb-3">
+                        <div class="col-auto mb-1 mr-0 pr-0">
+                            <select id="type">
+                                <option>STUN</option>
+                                <option>TURN</option>
+                                <option>TURNS</option>
+                            </select>
+                            &nbsp;:&nbsp;
+                        </div>
+                        <div class="col-auto mb-1 mr-0 pr-0 pl-0">
+                            <input id="host" type="text" placeholder="Domain.tld *" size="20">&nbsp;:&nbsp;
+                        </div>
+                        <div class="col-auto mb-1 mr-0 pl-0">
+                            <input id="port" type="text" placeholder="Port *" size="5">
+                        </div>
+                        <div class="col-auto">
+                            <div style="display: inline-block;" class="mb-1 mr-0 pr-0">
+                                <input id="username" type="text" placeholder="Username" size="12"/>:
+                            </div>
+                            <div style="display: inline-block;" class="mb-1 pl-0">
+                                <input id="password" type="text" placeholder="Password" size="12"/>
+                            </div>
+                            <!-- <div class="col-auto"><input title="Active" type="checkbox" id="active" checked /></div> -->
+                        </div>
+                        <div class="col-auto pr-0">
+                            <button type="submit" class="btn btn-primary" onclick="return ice(event);">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-12 col-lg-4 pt-1 border">
+                <form onsubmit="return iceString();">
+                    <div class="row mb-3">
+                        <div class="col-auto mb-1">
+                            <input id="icestring" type="text" placeholder="stun:domain.tld:port [username:password]" size="30" value="">
+                        </div>
+                        <div class="col-auto pr-0">
+                            <button type="submit" class="btn btn-primary" onclick="return iceString();">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="m-0 p-1 row border divHead">
+                    <div class="col-1 pr-0"></div>
+                    <div class="col-6 pl-0">Server</div>
+                    <div class="col-4 credentials">Credentials</div>
+                </div>
+            </div>
+            <div class="col d-none d-lg-block">
+                <div class="m-0 p-1 row border divHead">
+                    <div class="col-1 pr-0"></div>
+                    <div class="col-6 pl-0">Server</div>
+                    <div class="col-4 credentials">Credentials</div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-5" id="iceListBody"></div>
+        <div id="ICE_Results_Div">
+            <h4>
+                ICE Results &nbsp;&nbsp;
+                <button type="submit" class="btn btn-primary" onclick="return runTest();">
+                    <i class="fa-solid fa-person-running"></i>
+                </button>
+            </h4>
+            <hr>
+            <div id="iceResults" class="row"></div>
+        </div>
+    </div>
+</main>
+<script src="assets/js/adapter.min.js"></script>
+<script src="assets/js/query.min.js"></script>
+<script src="assets/js/cookies.min.js"></script>
+<script src="assets/js/script.js"></script>
+<script src="assets/js/freestun.min.js"></script>
+</body>
+</html>
