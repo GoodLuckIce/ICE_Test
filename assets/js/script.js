@@ -14,22 +14,21 @@ function writeCookie() {
 function del(index) {
     iceObj.splice(index, 1);
     $('#iceEle_' + index + ', #iceEleRes_' + index).remove();
-    writeCookie();
+    // writeCookie();
     return false;
 }
 
 function active(index) {
     let active = iceObj[index].active;
-    console.log(active);
     active = !active;
     iceObj[index].active = active;
-    $('#active_' + index).removeClass('fa-toggle-on fa-toggle-off black red').addClass('fa-toggle-' + (active ? 'on black' : 'off red'));
+    $('#active_' + index).removeClass('fa-toggle-on fa-toggle-off black red').addClass('fa-toggle-' + (active ? 'on green' : 'off red'));
     if (!active) $('#iceEleRes_' + index).hide();
     else {
         iceTest(index);
         $('#iceEleRes_' + index).show();
     }
-    writeCookie();
+    // writeCookie();
 }
 
 function add(index, ice) {
@@ -41,18 +40,15 @@ function add(index, ice) {
 		<div class="col-1 pr-0" id="ice_' + index + '">&nbsp;</div>\
 		<div class="col-6 pl-0">' + ice.type + ':' + ice.host + ':' + ice.port + '</div>\
 		<div class="col-3">' + cred + '</div>';
-    if (!freeStun && preload == '') newRow += '\
+    newRow += '\
 		<div class="col-1"><i title="Active" id="active_' + index + '" class="fa-solid fa-toggle-' + (ice.active ? 'on' : 'off red') + '" onclick="active(' + index + ');"></i></div>\
 		<div class="col-1"><i class="fa-solid fa-trash" onclick="del(' + index + ');"></i></div>';
-    else newRow += '\
-		<div class="col-5 small ' + (freeStun ? '' : 'd-none') + '" id="candidate_' + index + '"></div>\
-		<div class="col-1 small" id="ms_' + index + '"></div>';
     newRow += '\
 		</div>\
 	</div>';
     $('#iceListBody').append(newRow);
-    iceTest(index);
     active(index);
+    iceTest(index);
 }
 
 function list() {
@@ -72,7 +68,7 @@ function iceFromString(str) {
         ice.port = m[3];
         ice.username = m[4] || '';
         ice.password = m[5] || '';
-        ice.active = true;
+        ice.active = false;
         newIce(ice);
     } else alert('Can not parse the string, please refine.\nFormat: stun:domain.tld:port [username:password]');
 }
@@ -82,30 +78,13 @@ function iceString(e) {
     let ice = {}, str = $('#icestring').val();
     if (str == '') return false;
     iceFromString(str);
-    writeCookie();
+    // writeCookie();
     return false;
 }
 
 function newIce(ice) {
-    if (preload != '') {
-        iceObj.push(ice);
-        add(iceObj.length - 1, ice);
-    } else {
-        $('#example').remove();
-        let tmpNew = JSON.stringify(ice);
-        let found = false;
-        for (let i = 0; i < iceObj.length; i++) {
-            if (tmpNew == JSON.stringify(iceObj[i])) {
-                found = true;
-                break;
-            }
-        }
-        ;
-        if (!found) {
-            iceObj.push(ice);
-            add(iceObj.length - 1, ice);
-        }
-    }
+    iceObj.push(ice);
+    add(iceObj.length - 1, ice);
 }
 
 function ice(e) {
@@ -151,7 +130,7 @@ async function iceTest(index) {
     if (ice.username + ice.password != '') head += '&nbsp;[' + ice.username + ':' + ice.password + ']';
     $('#iceEleRes_' + index).remove();
     $('#iceResults').append('\
-	<div class="' + (preload == '' ? '' : 'd-none') + ' col-12 col-lg-6 mb-4" id="iceEleRes_' + index + '">\
+	<div class="col-12 col-lg-6 mb-4" id="iceEleRes_' + index + '">\
 	<div class="row m-0 p-1 border" style="padding-bottom: 0px !important;">\
 		<div class="col-1 pr-0" id="res_' + index + '"></div>\
 		<div class="col-7 pl-0"><h6>' + head + '</h6></div>\
@@ -274,97 +253,42 @@ function runTest() {
 }
 
 function loadExample() {
-    iceObj.push({
-        "type": "STUN",
-        "host": "freestun.net",
-        "port": "3479",
-        "username": "FREE",
-        "password": "FREE",
-        "active": true
-    });
-    list();
+    stunList();
 }
 
 function loadHome() {
-    iceObj = [];
     freeStun = false;
     initIce();
-    $('#formDiv, #iceResults, #ICE_Results_Div, .credentials').show();
 }
 
-function loadFreeStun() {
-    iceObj = [];
-    freeStun = true;
-    $('#formDiv, #iceResults, #ICE_Results_Div, .credentials').hide();
-    $('#resetButton').removeClass('d-none');
-    $('#iceResults, #iceListBody').html('');
-    let m, ice, rnd, i;
-    for (i = 0; i < 11 && freeStunArray.length > 0; i++) {
-        rnd = Math.floor(Math.random() * freeStunArray.length);
-        m = regex.exec('stun:' + freeStunArray[rnd].url);
-        freeStunArray.splice(rnd, 1);
-        if (m !== null) {
-            ice = {};
-            ice.type = m[1].toUpperCase();
-            ice.host = m[2];
-            ice.port = m[3];
-            ice.username = m[4];
-            ice.password = m[5];
-            ice.active = true;
-            newIce(ice);
-        }
-    }
-    if (freeStunArray.length == 0) $('#iceListBody').append('<span class="ml-4 mt-1"><b>Free STUN list is empty now.</b></span>');
-}
 
 function initIce() {
     $('#iceResults').html('');
-    if (preload == '') {
-        let iceStr = cookie.get('ice');
-        if (iceStr != '' && iceStr != '[]') {
-            iceObj = JSON.parse(iceStr);
-            list();
-        } else $('#example').removeClass('d-none');
-    } else {
-        $('body').css('background', 'black').css('color', 'white');
-
-        if (preload == 'freestun') {
-            iceFromString('STUN:freestun.net:3478');
-            iceFromString('TURN:freestun.net:3478 [free:free]');
-        } else if (preload == 'freeturn') {
-            iceFromString('STUN:freeturn.net:3478');
-            iceFromString('TURN:freeturn.net:3478 [free:free]');
-        }
-    }
-    ;
+    iceFromString('STUN:freestun.net:3478');
+    iceFromString('TURN:freestun.net:3478 [free:free]');
+    iceFromString('STUN:freeturn.net:3478');
+    iceFromString('TURN:freeturn.net:3478 [free:free]');
 }
 
 let preload;
 $(document).ready(function () {
-    preload = QueryString('preload');
-    if (preload != '') {
-        $('button').hide();
-    } else {
-        $('#iceListBody').removeClass('d-none');
-    }
+    $('#formDiv, #iceResults, #ICE_Results_Div, .credentials').show();
+    $('#iceListBody').removeClass('d-none');
+    iceObj = [];
     initIce();
-    stunList();
 });
 
 
 async function stunList() {
     const IPV4_URL = "https://raw.githubusercontent.com/pradt2/always-online-stun/master/valid_ipv4s.txt";
-    const GEO_USER_URL = "https://geolocation-db.com/json/";
-    const {latitude, longitude, IPv4} = await (await fetch(GEO_USER_URL)).json();
     const closestAddr = (await (await fetch(IPV4_URL)).text()).trim().split('\n')
     console.log(closestAddr); // prints the IP:PORT of the closest STUN server
-    myIP4 = IPv4
 
     for (let addr of closestAddr) {
         let host_port = addr.trim().split(':')
         let ice = {
             type: "STUN",
-            active: true,
+            active: false,
             host: host_port[0],
             port: host_port[1],
             username: '',
@@ -372,5 +296,10 @@ async function stunList() {
         };
         newIce(ice);
     }
+
+
+    // const GEO_USER_URL = "https://geolocation-db.com/json/";
+    // const {latitude, longitude, IPv4} = await (await fetch(GEO_USER_URL)).json();
+    // myIP4 = IPv4
 
 }

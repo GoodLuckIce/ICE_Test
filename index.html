@@ -37,9 +37,8 @@
                 <h4>ICE Server</h4>
             </div>
             <div class="col-4" style="text-align: right;">
-                <button id="example" type="submit" class="d-none btn btn-secondary" onclick="return loadExample();">RUN EXAMPLE</button>
-                <button id="resetButton" type="submit" class="d-none btn btn-secondary" onclick="return loadHome();">
-                    <i title="Reset" class="fa-solid fa-house-chimney"></i>
+                <button id="example" type="submit" class="btn btn-secondary" onclick="return loadExample();">
+                    加载STUN服务
                 </button>
             </div>
         </div>
@@ -83,7 +82,8 @@
                 <form onsubmit="return iceString();">
                     <div class="row mb-3">
                         <div class="col-auto mb-1">
-                            <input id="icestring" type="text" placeholder="stun:domain.tld:port [username:password]" size="30" value="">
+                            <input id="icestring" type="text" placeholder="stun:domain.tld:port [username:password]"
+                                   size="30" value="">
                         </div>
                         <div class="col-auto pr-0">
                             <button type="submit" class="btn btn-primary" onclick="return iceString();">
@@ -102,7 +102,7 @@
                     <div class="col-4 credentials">Credentials</div>
                 </div>
             </div>
-            <div class="col d-none d-lg-block">
+            <div class="co d-lg-block">
                 <div class="m-0 p-1 row border divHead">
                     <div class="col-1 pr-0"></div>
                     <div class="col-6 pl-0">Server</div>
